@@ -6,13 +6,13 @@ ocorrido, é possível gerar um totalizador que dividirá o valor final que cada
 descontos ou despesas em comum aplicados para cada participante proporcionalmente ao valor pago do total da 
 transação.
 
-###Modelo de persistência
+##Modelo de persistência
 * Os dados utilizados para o cálculo dos totais são persistidos em um banco de dados SQL. Para praticidade,
 nesta solução, é utilizado um banco de dados H2, que cria as entidades em memória enquanto a aplicação estiver
 rodando. Os dados são apagados caso a aplicação seja reiniciada. O banco pode ser acessado, usando a senha e 
 login padrão, pelo endereço http://localhost:8080/h2-ui .
 
-###Geração do link de pagamento
+##Geração do link de pagamento
 * O modelo de estrutura da geração do link de pagamento é o mesmo da API disponibilizada pelo PicPay em:
   https://picpay.github.io/picpay-docs-digital-payments/checkout/resources/api-reference/
 * As entidades de request e response e a chamada REST para a API externa (na package Integration) são uma
@@ -26,7 +26,7 @@ o request é feito pelo frontend.
 * O CPF do pagador, no link do PicPay, é um campo obrigatório. Para manter a fidelidade, nesta aplicação o
 usuário também deverá informar um CPF para cada pagador para quem deseja gerar o link.
 
-###Frontend
+##Frontend
 * O frontend é uma página html com javascript embedado (em resources/templates/index.html). Para utilizar, com
 a aplicação rodando, acessar o localhost:8080.
 * O html está dentro do projeto por praticidade e, apesar disso, o frontend e o backend estão totalmente desacoplados,
