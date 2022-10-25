@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Desafio Backend - Softexpert</title>
+</head>
+<body>
+<h2>Adicionar produtos</h2>
+<br>
+<form id="formProduto">
+    <label for="nome">Produto</label>
+    <input type="text" id="nome" name="nome">
+    <label for="amigo">Quem consumiu</label>
+    <input type="text" id="amigo" name="amigo">
+    <label for="valor">Valor</label>
+    <input type="number" step=".01" id="valor" name="valor">
+    <input type="submit" value="Adicionar">
+    <div id="listaProdutos">
+        <ul>
+
+        </ul>
+    </div>
+</form>
+<br>
+<br>
+<h2>Adicionar descontos e despesas em comum</h2>
+<br>
+<form id="formDescDesp">
+    <label for="tipoDescDesp">Tipo</label>
+    <select id="tipoDescDesp" name="tipoDescDesp">
+        <option value="desconto">Desconto</option>
+        <option value="despesa">Despesa</option>
+    </select>
+    <label for="descricao">Descrição</label>
+    <input type="text" id="descricao" name="descricao">
+    <label for="valorDescDesp">Valor</label>
+    <input type="number" step=".01" id="valorDescDesp" name="valorDescDesp">
+    <select id="tipoValor" name="tipoValor">
+        <option value="moeda">R$</option>
+        <option value="percentual">%</option>
+    </select>
+    <input type="submit" value="Adicionar">
+    <div id="listaDescDesp">
+        <ul>
+
+        </ul>
+    </div>
+</form>
+<br>
+<br>
+<form id="total">
+    <button id="totalBotao" type="submit">GERAR TOTAIS</button>
+    <div id="listaTotais">
+        <ul>
+
+        </ul>
+    </div>
+</form>
+<br>
+<br>
+<form id="linko">
+    <button id="linkCobranca" type="submit">Gerar Links</button>
+    <div id="listaLinks">
+        <ul></ul>
+    </div>
+</form>
+</body>
+<script>
+    formProduto.onsubmit = async (e) => {
+        listaTemp = document.querySelector("#listaProdutos").innerHTML;
+        e.preventDefault();
+        let formProduto = document.querySelector("#formProduto");
+
+        dataProduto = {
+            nome: formProduto.querySelector('input[name="nome"]').value,
+            amigo: formProduto.querySelector('input[name="amigo"]').value,
+            valor: formProduto.querySelector('input[name="valor"]').value,
+            idTransacao: 1
+        }
+
+        let response = await fetch('http://localhost:8080/api/produtos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataProduto),
+        })
+
+        let res = await response.text();
+        let jObjc = JSON.parse(res);
+        let produto = jObjc.nome;
+        let valor = jObjc.valor;
+        let amigo = jObjc.amigo;
+
+        document.querySelector("#listaProdutos").innerHTML = listaTemp + "<br />" + "<li>" + amigo + ": " + produto + ", " + valor + " R$" + "</li>";
+        formProduto.nome.value = '';
+        formProduto.amigo.value = '';
+        formProduto.valor.value = '';
+    };
+
+    formDescDesp.onsubmit = async (e) => {
+        listaTempDescDesp = document.querySelector("#listaDescDesp").innerHTML;
+        e.preventDefault();
+        let formDescDesp = document.querySelector("#formDescDesp");
+
+        dataDescDesp = {
+            descricao: formDescDesp.querySelector('input[name="descricao"]').value,
+            valor: formDescDesp.querySelector('input[name="valorDescDesp"]').value,
+            tipoValor: formDescDesp.querySelector('select[name="tipoValor"]').value,
+            tipoDescontoDespesa: formDescDesp.querySelector('select[name="tipoDescDesp"]').value,
+            idTransacao: 1
+        }
+
+        let response = await fetch('http://localhost:8080/api/descontosDespesas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataDescDesp),
+        })
+
+        let res = await response.text();
+        let jObjc = JSON.parse(res);
+        let descricao = jObjc.descricao;
+        let valor = jObjc.valor;
+        let tipoValor = jObjc.tipoValor === "moeda" ? "R$" : "%";
+        let tipoDescDesp = jObjc.tipoDescontoDespesa;
+
+        document.querySelector("#listaDescDesp").innerHTML = listaTempDescDesp + "<br />" + "<li>" + descricao + ": " + valor + " " + tipoValor + " (" + tipoDescDesp + ")" + "</li>";
+        formDescDesp.descricao.value = '';
+        formDescDesp.valorDescDesp.value = '';
+    };
+
+    total.onsubmit = async (e) => {
+
+        e.preventDefault();
+
+        let response = await fetch('http://localhost:8080/api/totais/1', {
+            method: 'PUT'
+        })
+
+        let res = await response.text();
+        let jObjc = JSON.parse(res);
+        let lista = "";
+        for (const amigo of jObjc) {
+            lista += "<br />" + "<li>" + amigo.nome + ": " + amigo.valorTotal + " R$ "
+                + "</li>";
+        }
+
+        document.querySelector("#listaTotais").innerHTML = "<h2>Totais a pagar</h2>" + lista;
+    };
+
+    linko.onsubmit = async (e) => {
+
+        e.preventDefault();
+
+        let amigosResponse = await fetch('http://localhost:8080/api/amigos/1').then(amigosResponse => amigosResponse.json())
+        var listaLinks = "";
+
+        for (const amigo of amigosResponse) {
+            cpf = myFunction(amigo.nome);
+
+            if (cpf == "") {
+                continue;
+            } else {
+                dataLinkCobranca = {
+                    referenceId: amigo.nome,
+                    value: amigo.valorTotal,
+                    buyer: {"document": cpf}
+                }
+                let linkResponse = await fetch('http://localhost:8080/api/cobrancaPicPay', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-picpay-token': 'picToken',
+                            'x-seller-token': 'sellerToken'
+                        },
+                        body: JSON.stringify(dataLinkCobranca),
+                    }
+                )
+                let res = await linkResponse.text();
+                let jObjc = JSON.parse(res);
+                listaLinks += "<br>" + "<li>" + amigo.nome + ": " + jObjc.paymentUrl + "</li>";
+            }
+        }
+        document.querySelector("#listaLinks").innerHTML = listaLinks;
+    };
+
+    function myFunction(nomeAmigo) {
+        let amigo = prompt("Informe o CPF para " + nomeAmigo + ": ");
+        let cpf = "";
+        if (amigo == null || amigo == "") {
+            cpf = "";
+        } else {
+            cpf = amigo;
+        }
+        return cpf;
+    }
+</script>
+</html>
