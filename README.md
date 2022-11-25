@@ -1,5 +1,5 @@
-# Solução para o Desafio Backend da SoftExpert
-Essa API é uma solução para o Desafio Backend da SoftExpert. Ela é composta de URLs para cadastro de produtos, 
+# API para cálculo d divisão de contas
+Esta API é composta de URLs para cadastro de produtos, 
 valores e participantes em alguma transação comercial em que o valor precisa ser dividido, além de despesas e 
 descontos em comum a todos os participantes da transação. Após o cadastro de todos os valores da transação terem 
 ocorrido, é possível gerar um totalizador que dividirá o valor final que cada participante deverá pagar, com os
