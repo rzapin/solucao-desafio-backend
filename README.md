@@ -1,4 +1,4 @@
-# API para cálculo d divisão de contas
+# API para cálculo de divisão de contas
 Esta API é composta de URLs para cadastro de produtos, 
 valores e participantes em alguma transação comercial em que o valor precisa ser dividido, além de despesas e 
 descontos em comum a todos os participantes da transação. Após o cadastro de todos os valores da transação terem 
